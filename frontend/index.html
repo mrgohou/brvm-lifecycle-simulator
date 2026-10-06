@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulateur BRVM — Cycle de vie &amp; Rentabilité</title>
+<link rel="stylesheet" href="css/style.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Simulateur d'évaluation d'action — BRVM</h1>
+    <p class="subtitle">
+      Cours quasi temps réel, cycle de vie de l'entreprise et rentabilité sur une période que vous choisissez.
+    </p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <div class="field">
+        <label for="symbolSelect">Valeur</label>
+        <select id="symbolSelect"></select>
+      </div>
+
+      <div class="field">
+        <label>Période d'évaluation</label>
+        <div class="period-presets" id="periodPresets">
+          <button data-days="7">1 sem</button>
+          <button data-days="30">1 mois</button>
+          <button data-days="180">6 mois</button>
+          <button data-days="365" class="active">1 an</button>
+          <button data-days="1095">3 ans</button>
+          <button data-days="1825">5 ans</button>
+        </div>
+        <div class="period-custom">
+          <input type="date" id="startDate" />
+          <span>au</span>
+          <input type="date" id="endDate" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="amountInput">Montant investi (FCFA)</label>
+        <input type="number" id="amountInput" value="250000" min="5000" step="5000" />
+      </div>
+
+      <div class="field checkbox-field">
+        <label><input type="checkbox" id="includeDividends" checked /> Inclure les dividendes</label>
+      </div>
+
+      <button id="runButton" class="primary">Calculer la rentabilité</button>
+    </section>
+
+    <section class="panel live">
+      <div class="live-header">
+        <h2 id="companyName">—</h2>
+        <span id="lifecycleBadge" class="badge">—</span>
+      </div>
+      <div class="live-price">
+        <span id="currentPrice">—</span>
+        <span id="currentChange" class="change">—</span>
+      </div>
+      <p class="freshness" id="freshnessNote">—</p>
+      <p class="lifecycle-rationale" id="lifecycleRationale"></p>
+    </section>
+
+    <section class="panel chart-panel">
+      <canvas id="priceChart" height="90"></canvas>
+    </section>
+
+    <section class="panel result" id="resultPanel" hidden>
+      <h2>Résultat de la simulation</h2>
+      <div class="result-grid" id="resultGrid"></div>
+      <p class="disclaimer">
+        Données issues de sikafinance.com (cours différé ~15 min, historique quotidien). Usage pédagogique :
+        ceci n'est pas un conseil d'investissement.
+      </p>
+    </section>
+
+    <section class="panel error" id="errorPanel" hidden></section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
