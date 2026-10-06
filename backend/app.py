@@ -6,6 +6,7 @@ import time
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+import requests
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -46,7 +47,13 @@ def get_history_with_cache(symbol: str, start: date, end: date) -> list[dict]:
     if cached and covers_start and covers_end:
         return cached
 
-    fresh_rows = provider.get_history(symbol, start, end)
+    try:
+        fresh_rows = provider.get_history(symbol, start, end)
+    except requests.exceptions.RequestException as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"sikafinance.com est injoignable depuis ce serveur pour l'instant ({exc.__class__.__name__}).",
+        ) from exc
     for row in fresh_rows:
         row["symbol"] = symbol
     history_store.upsert_prices(symbol, fresh_rows)
@@ -59,7 +66,13 @@ def get_quote_cached(symbol: str) -> dict:
     if cached and (now - cached[0]) < QUOTE_TTL_SECONDS:
         return cached[1]
 
-    quote = provider.get_quote(symbol)
+    try:
+        quote = provider.get_quote(symbol)
+    except requests.exceptions.RequestException as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"sikafinance.com est injoignable depuis ce serveur pour l'instant ({exc.__class__.__name__}).",
+        ) from exc
     if quote is None:
         raise HTTPException(status_code=404, detail=f"Valeur inconnue ou page indisponible: {symbol}")
     _quote_cache[symbol] = (now, quote)
